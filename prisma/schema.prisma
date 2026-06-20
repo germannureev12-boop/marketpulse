@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SourceKind {
+  manual
+  rss
+  api
+}
+
+enum ArticleOrigin {
+  manual
+  imported
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Source {
+  id                  Int        @id @default(autoincrement())
+  name                String
+  slug                String     @unique
+  url                 String
+  description         String?
+  kind                SourceKind @default(manual)
+  feedUrl             String?
+  categorySlug        String?
+  priority            Int        @default(100)
+  pollIntervalMinutes Int        @default(30)
+  lastFetchedAt       DateTime?
+  lastError           String?
+  configJson          Json?
+  isActive            Boolean    @default(true)
+  articles            Article[]
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  @@index([isActive, priority])
+}
+
+model Article {
+  id              Int           @id @default(autoincrement())
+  title           String
+  slug            String        @unique
+  excerpt         String
+  content         String
+  coverImage      String?
+  externalUrl     String?
+  externalId      String?
+  origin          ArticleOrigin @default(manual)
+  isFeatured      Boolean       @default(false)
+  isPublished     Boolean       @default(true)
+  isArchived      Boolean       @default(false)
+  importanceScore Int           @default(0)
+  publishedAt     DateTime
+  fetchedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  categoryId      Int
+  sourceId        Int
+  category        Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  source          Source        @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@index([categoryId])
+  @@index([sourceId])
+  @@index([isPublished, isArchived, publishedAt(sort: Desc)])
+  @@index([publishedAt(sort: Desc)])
+  @@index([externalUrl])
+  @@unique([sourceId, externalId])
+}
+
+model CryptoSnapshot {
+  id          Int      @id @default(autoincrement())
+  symbol      String
+  name        String
+  price       Decimal  @db.Decimal(18, 2)
+  change24h   Decimal  @db.Decimal(8, 2)
+  marketCap   String
+  recordedAt  DateTime @default(now())
+
+  @@index([symbol, recordedAt(sort: Desc)])
+}
+
+model DailySummary {
+  id          Int      @id @default(autoincrement())
+  summaryDate DateTime @unique
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

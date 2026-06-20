@@ -1,0 +1,44 @@
+[features]
+rmcp_client = true
+
+[mcp_servers.filesystem]
+command = "C:\\Users\\44AF~1\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe"
+args = [
+  "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp\\.codex\\work\\mcp-packages\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+  "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp",
+]
+cwd = "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp"
+startup_timeout_sec = 20
+tool_timeout_sec = 90
+enabled = true
+
+[mcp_servers.sequential_thinking]
+command = "C:\\Users\\44AF~1\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe"
+args = [
+  "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp\\.codex\\work\\mcp-packages\\node_modules\\@modelcontextprotocol\\server-sequential-thinking\\dist\\index.js",
+]
+cwd = "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp"
+startup_timeout_sec = 20
+tool_timeout_sec = 90
+enabled = true
+
+[mcp_servers.playwright]
+command = "C:\\Users\\44AF~1\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe"
+args = [
+  "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp\\.codex\\work\\mcp-packages\\node_modules\\@playwright\\mcp\\cli.js",
+  "--isolated",
+]
+cwd = "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp"
+startup_timeout_sec = 20
+tool_timeout_sec = 90
+enabled = true
+
+[mcp_servers.context7]
+command = "C:\\Users\\44AF~1\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe"
+args = [
+  "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp\\.codex\\work\\mcp-packages\\node_modules\\@upstash\\context7-mcp\\dist\\index.js",
+]
+cwd = "C:\\Users\\44AF~1\\Documents\\Codex\\2026-06-19\\frontend-design-playwright-filesystem-github-mcp"
+startup_timeout_sec = 20
+tool_timeout_sec = 90
+enabled = true

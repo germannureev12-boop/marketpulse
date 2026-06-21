@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
@@ -23,7 +24,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         categorySlug: parsed.data.categorySlug ?? null,
         priority: parsed.data.priority ?? 100,
         pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
-        configJson: parsed.data.configJson ?? null,
+        configJson: parsed.data.configJson === null ? Prisma.DbNull : parsed.data.configJson,
         isActive: parsed.data.isActive ?? true
       }
     });

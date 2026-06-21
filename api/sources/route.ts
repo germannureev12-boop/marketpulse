@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         categorySlug: parsed.data.categorySlug ?? null,
         priority: parsed.data.priority ?? 100,
         pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
-        configJson: parsed.data.configJson === null ? Prisma.DbNull : parsed.data.configJson,,
+        configJson: parsed.data.configJson === null ? Prisma.DbNull : parsed.data.configJson,
         isActive: parsed.data.isActive ?? true
       }
     });

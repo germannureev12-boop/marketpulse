@@ -235,31 +235,31 @@ function PriceChart({
 }, [plotWidth, snapshot.candles.length, stopChartDrag, visibleCandles.length, zoomLevel]);
 
   const handleChartWindowMouseUp = useCallback(() => {
-    stopChartDrag();
-  });
+  stopChartDrag();
+}, [stopChartDrag]);
 
   const handleNativeChartMouseDown = useCallback((event: MouseEvent) => {
-    if (event.button !== 0) {
-      return;
-    }
+  if (event.button !== 0) {
+    return;
+  }
 
-    if (dragStateRef.current) {
-      return;
-    }
+  if (dragStateRef.current) {
+    return;
+  }
 
-    if (!getPointerPosition(event.clientX, event.clientY)) {
-      return;
-    }
+  if (!getPointerPosition(event.clientX, event.clientY)) {
+    return;
+  }
 
-    event.preventDefault();
-    dragStateRef.current = {
-      startX: event.clientX,
-      startOffset: panOffset
-    };
-    setHoveredIndex(null);
-    setIsDragging(true);
-    document.body.style.userSelect = "none";
-  });
+  event.preventDefault();
+  dragStateRef.current = {
+    startX: event.clientX,
+    startOffset: panOffset
+  };
+  setHoveredIndex(null);
+  setIsDragging(true);
+  document.body.style.userSelect = "none";
+}, [getPointerPosition, panOffset]);
 
   useEffect(() => {
     const containerElement = chartContainerRef.current;
@@ -706,24 +706,23 @@ export function MarketTerminal({ initialSymbol }: MarketTerminalProps) {
   const [interval, setInterval] = useState<MarketInterval>("15m");
 
   const refreshSnapshot = useCallback(async () => {
-    try {
-      const response = await fetch(`/api/markets/${initialSymbol}?interval=${interval}`, { cache: "no-store" });
-      if (!response.ok) {
-        throw new Error("Market feed unavailable");
-      }
-
-      const data = (await response.json()) as MarketSnapshot;
-      startTransition(() => {
-        setSnapshot(data);
-        setError(null);
-      });
-    } catch {
-      startTransition(() => {
-        setError("Live market feed is temporarily unavailable.");
-      });
+  try {
+    const response = await fetch(`/api/markets/${initialSymbol}?interval=${interval}`, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error("Market feed unavailable");
     }
-  });
 
+    const data = (await response.json()) as MarketSnapshot;
+    startTransition(() => {
+      setSnapshot(data);
+      setError(null);
+    });
+  } catch {
+    startTransition(() => {
+      setError("Live market feed is temporarily unavailable.");
+    });
+  }
+}, [initialSymbol, interval]);
   useEffect(() => {
     void refreshSnapshot();
     const intervalId = window.setInterval(() => {

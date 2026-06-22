@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
@@ -17,21 +17,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const source = await prisma.source.update({
       where: { id: Number(id) },
       data: {
-        ...parsed.data,
-        description: parsed.data.description ?? null,
-        kind: parsed.data.kind ?? "manual",
-        feedUrl: parsed.data.feedUrl || null,
-        categorySlug: parsed.data.categorySlug ?? null,
-        priority: parsed.data.priority ?? 100,
-        pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
-        configJson:
-  parsed.data.configJson === undefined
-    ? undefined
-    : parsed.data.configJson === null
-      ? Prisma.DbNull
-      : (parsed.data.configJson as Prisma.InputJsonObject),
-        isActive: parsed.data.isActive ?? true
-      }
+  name: parsed.data.name,
+  slug: parsed.data.slug ?? undefined,
+  url: parsed.data.url,
+  description: parsed.data.description ?? null,
+  kind: parsed.data.kind ?? "manual",
+  feedUrl: parsed.data.feedUrl || null,
+  categorySlug: parsed.data.categorySlug ?? null,
+  priority: parsed.data.priority ?? 100,
+  pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
+  isActive: parsed.data.isActive ?? true
+}
     });
 
     return NextResponse.json({ source });

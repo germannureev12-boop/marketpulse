@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useEffectEvent, useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 
 import { CryptoCard } from "@/components/crypto-card";
 import { getMarketHref } from "@/lib/market-data";
@@ -35,30 +35,30 @@ export function LiveCryptoGrid({ initialItems }: LiveCryptoGridProps) {
   const [fxUpdatedAt, setFxUpdatedAt] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(initialItems[0]?.recordedAt ?? null);
 
-  const refreshPrices = useEffectEvent(async () => {
-    try {
-      const response = await fetch("/api/crypto/live", { cache: "no-store" });
-      if (!response.ok) {
-        return;
-      }
-
-      const data = (await response.json()) as LiveCryptoResponse;
-      if (!Array.isArray(data.crypto) || data.crypto.length === 0) {
-        return;
-      }
-
-      startTransition(() => {
-        setItems(data.crypto);
-        setSource(data.source);
-        setProvider(data.provider);
-        setUsdRubRate(data.usdRubRate);
-        setFxUpdatedAt(data.fxUpdatedAt);
-        setLastUpdated(new Date(data.crypto[0]?.recordedAt ?? Date.now()));
-      });
-    } catch {
-      // Keep the last known values on screen if polling fails.
+  const refreshPrices = useCallback(async () => {
+  try {
+    const response = await fetch("/api/crypto/live", { cache: "no-store" });
+    if (!response.ok) {
+      return;
     }
-  });
+
+    const data = (await response.json()) as LiveCryptoResponse;
+    if (!Array.isArray(data.crypto) || data.crypto.length === 0) {
+      return;
+    }
+
+    startTransition(() => {
+      setItems(data.crypto);
+      setSource(data.source);
+      setProvider(data.provider);
+      setUsdRubRate(data.usdRubRate);
+      setFxUpdatedAt(data.fxUpdatedAt);
+      setLastUpdated(new Date(data.crypto[0]?.recordedAt ?? Date.now()));
+    });
+  } catch {
+    // Keep the last known values on screen if polling fails.
+  }
+}, []);
 
   useEffect(() => {
     void refreshPrices();

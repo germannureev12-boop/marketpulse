@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useEffectEvent, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   buildMarketChartModel,
@@ -165,7 +165,7 @@ function PriceChart({
     setPanOffset((current) => clampMarketPanOffset(snapshot.candles.length, zoomLevel, current));
   }, [snapshot.interval, zoomLevel, snapshot.candles.length]);
 
-  const getPointerPosition = useEffectEvent((clientX: number, clientY: number) => {
+  const getPointerPosition = useCallback((clientX: number, clientY: number) => {
     const containerElement = chartContainerRef.current;
     if (!containerElement) {
       return null;
@@ -199,7 +199,7 @@ function PriceChart({
     return { nearestIndex, anchorRatio: safeRatio };
   });
 
-  const stopChartDrag = useEffectEvent(() => {
+  const stopChartDrag = useCallback(() => {
     if (!dragStateRef.current) {
       return;
     }
@@ -209,7 +209,7 @@ function PriceChart({
     document.body.style.userSelect = "";
   });
 
-  const handleChartWindowMouseMove = useEffectEvent((event: MouseEvent) => {
+  const handleChartWindowMouseMove = useCallback((event: MouseEvent) => {
     const activeDrag = dragStateRef.current;
     if (!activeDrag) {
       return;
@@ -227,11 +227,11 @@ function PriceChart({
     );
   });
 
-  const handleChartWindowMouseUp = useEffectEvent(() => {
+  const handleChartWindowMouseUp = useCallback(() => {
     stopChartDrag();
   });
 
-  const handleNativeChartMouseDown = useEffectEvent((event: MouseEvent) => {
+  const handleNativeChartMouseDown = useCallback((event: MouseEvent) => {
     if (event.button !== 0) {
       return;
     }
@@ -698,7 +698,7 @@ export function MarketTerminal({ initialSymbol }: MarketTerminalProps) {
   const [error, setError] = useState<string | null>(null);
   const [interval, setInterval] = useState<MarketInterval>("15m");
 
-  const refreshSnapshot = useEffectEvent(async () => {
+  const refreshSnapshot = useCallback(async () => {
     try {
       const response = await fetch(`/api/markets/${initialSymbol}?interval=${interval}`, { cache: "no-store" });
       if (!response.ok) {

@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 
 import { getSources } from "@/lib/data";
@@ -21,7 +20,6 @@ export async function POST(request: Request) {
   try {
     const source = await prisma.source.create({
       data: {
-        ...parsed.data,
         description: parsed.data.description ?? null,
         kind: parsed.data.kind ?? "manual",
         feedUrl: parsed.data.feedUrl || null,

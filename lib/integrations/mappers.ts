@@ -135,15 +135,16 @@ export function mapCoinGeckoPrices(
   payload: Record<string, CoinGeckoEntry>,
   fallbackDate = new Date()
 ): CryptoRecord[] {
-  return coinMeta
-    .map((coin, index) => {
-      const item = payload[coin.apiId];
-      if (!item?.usd) {
-        return null;
-      }
+  return coinMeta.flatMap((coin, index) => {
+    const item = payload[coin.apiId];
+    if (!item?.usd) {
+      return [];
+    }
 
-      const recordedAt = item.last_updated_at ? new Date(item.last_updated_at * 1000) : fallbackDate;
-      return {
+    const recordedAt = item.last_updated_at ? new Date(item.last_updated_at * 1000) : fallbackDate;
+
+    return [
+      {
         id: index + 1,
         symbol: coin.symbol,
         name: coin.name,
@@ -151,9 +152,11 @@ export function mapCoinGeckoPrices(
         change24h: item.usd_24h_change ?? 0,
         marketCap: formatCompactCurrency(item.usd_market_cap ?? 0),
         recordedAt
-      } satisfies CryptoRecord;
-    })
-    .filter((item): item is CryptoRecord => Boolean(item));
+      } satisfies CryptoRecord
+    ];
+  });
+}
+  
 }
 
 type CoinbaseTickerEntry = {

@@ -24,7 +24,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         categorySlug: parsed.data.categorySlug ?? null,
         priority: parsed.data.priority ?? 100,
         pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
-  configJson: parsed.data.configJson ?? undefined,
         isActive: parsed.data.isActive ?? true
       }
     });

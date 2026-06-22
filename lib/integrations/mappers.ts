@@ -207,26 +207,27 @@ export function mapBinancePrices(
   payload: Record<string, BinanceTickerEntry>,
   fallbackDate = new Date()
 ): CryptoRecord[] {
-  return coinMeta
-    .map((coin, index) => {
-      const item = payload[coin.binanceSymbol];
-      const price = Number(item?.lastPrice ?? NaN);
-      if (Number.isNaN(price) || price <= 0) {
-        return null;
-      }
+  return coinMeta.flatMap((coin, index) => {
+    const item = payload[coin.binanceSymbol];
+    const price = Number(item?.lastPrice ?? NaN);
 
-      const change24h = Number(item?.priceChangePercent ?? 0);
-      const recordedAt = item?.closeTime ? new Date(item.closeTime) : fallbackDate;
+    if (Number.isNaN(price) || price <= 0) {
+      return [];
+    }
 
-      return {
+    const change24h = Number(item?.priceChangePercent ?? 0);
+    const recordedAt = item?.closeTime ? new Date(item.closeTime) : fallbackDate;
+
+    return [
+      {
         id: index + 1,
         symbol: coin.symbol,
         name: coin.name,
         price,
-        change24h: Number.isNaN(change24h) ? 0 : change24h,
+        change24h,
         marketCap: coin.fallbackMarketCap,
         recordedAt
-      } satisfies CryptoRecord;
-    })
-    .filter((item): item is CryptoRecord => Boolean(item));
+      } satisfies CryptoRecord
+    ];
+  });
 }

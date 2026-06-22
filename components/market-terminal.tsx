@@ -166,38 +166,38 @@ function PriceChart({
   }, [snapshot.interval, zoomLevel, snapshot.candles.length]);
 
   const getPointerPosition = useCallback((clientX: number, clientY: number) => {
-    const containerElement = chartContainerRef.current;
-    if (!containerElement) {
-      return null;
-    }
+  const containerElement = chartContainerRef.current;
+  if (!containerElement) {
+    return null;
+  }
 
-    const bounds = containerElement.getBoundingClientRect();
-    const relativeContainerX = clientX - bounds.left;
-    const relativeContainerY = clientY - bounds.top;
-    const absoluteX = (relativeContainerX / bounds.width) * chartWidth;
-    const absoluteY = (relativeContainerY / bounds.height) * chartHeight;
-    const insidePlot = isPointInsidePlotArea(
-      absoluteX,
-      absoluteY,
-      plotLeft,
-      plotTop,
-      plotLeft + plotWidth,
-      plotBottom
-    );
+  const bounds = containerElement.getBoundingClientRect();
+  const relativeContainerX = clientX - bounds.left;
+  const relativeContainerY = clientY - bounds.top;
+  const absoluteX = (relativeContainerX / bounds.width) * chartWidth;
+  const absoluteY = (relativeContainerY / bounds.height) * chartHeight;
+  const insidePlot = isPointInsidePlotArea(
+    absoluteX,
+    absoluteY,
+    plotLeft,
+    plotTop,
+    plotLeft + plotWidth,
+    plotBottom
+  );
 
-    if (!insidePlot) {
-      return null;
-    }
+  if (!insidePlot) {
+    return null;
+  }
 
-    const relativeX = absoluteX - plotLeft;
-    const safeRatio = Math.max(0, Math.min(1, relativeX / plotWidth));
-    const nearestIndex = chart.candles.reduce((closestIndex, candle, index, list) => {
-      const closest = list[closestIndex];
-      return Math.abs(candle.x - relativeX) < Math.abs((closest?.x ?? 0) - relativeX) ? index : closestIndex;
-    }, 0);
+  const relativeX = absoluteX - plotLeft;
+  const safeRatio = Math.max(0, Math.min(1, relativeX / plotWidth));
+  const nearestIndex = chart.candles.reduce((closestIndex, candle, index, list) => {
+    const closest = list[closestIndex];
+    return Math.abs(candle.x - relativeX) < Math.abs((closest?.x ?? 0) - relativeX) ? index : closestIndex;
+  }, 0);
 
-    return { nearestIndex, anchorRatio: safeRatio };
-  });
+  return { nearestIndex, anchorRatio: safeRatio };
+}, [chart.candles, plotBottom, plotLeft, plotTop, plotWidth]);
 
   const stopChartDrag = useCallback(() => {
     if (!dragStateRef.current) {

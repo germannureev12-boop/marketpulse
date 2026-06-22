@@ -16,14 +16,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const source = await prisma.source.update({
       where: { id: Number(id) },
       data: {
-        description: parsed.data.description ?? null,
-        kind: parsed.data.kind ?? "manual",
-        feedUrl: parsed.data.feedUrl || null,
-        categorySlug: parsed.data.categorySlug ?? null,
-        priority: parsed.data.priority ?? 100,
-        pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
-        isActive: parsed.data.isActive ?? true
-      }
+  name: parsed.data.name,
+  slug: parsed.data.slug ?? undefined,
+  url: parsed.data.url,
+  description: parsed.data.description ?? null,
+  kind: parsed.data.kind ?? "manual",
+  feedUrl: parsed.data.feedUrl || null,
+  categorySlug: parsed.data.categorySlug ?? null,
+  priority: parsed.data.priority ?? 100,
+  pollIntervalMinutes: parsed.data.pollIntervalMinutes ?? 30,
+  isActive: parsed.data.isActive ?? true
+}
     });
 
     return NextResponse.json({ source });

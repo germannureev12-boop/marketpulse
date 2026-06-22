@@ -157,7 +157,6 @@ export function mapCoinGeckoPrices(
   });
 }
   
-}
 
 type CoinbaseTickerEntry = {
   price?: string;

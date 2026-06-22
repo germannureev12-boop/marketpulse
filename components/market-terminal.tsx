@@ -723,16 +723,17 @@ export function MarketTerminal({ initialSymbol }: MarketTerminalProps) {
     });
   }
 }, [initialSymbol, interval]);
-  useEffect(() => {
-    void refreshSnapshot();
-    const intervalId = window.setInterval(() => {
-      void refreshSnapshot();
-    }, 5000);
 
-    return () => {
-      window.clearInterval(intervalId);
-    };
-  }, [interval, refreshSnapshot]);
+useEffect(() => {
+  void refreshSnapshot();
+  const intervalId = window.setInterval(() => {
+    void refreshSnapshot();
+  }, 5000);
+
+  return () => {
+    window.clearInterval(intervalId);
+  };
+}, [interval, refreshSnapshot]);
 
   if (error && !snapshot) {
     return <div className="panel p-8 text-slate-300">{error}</div>;

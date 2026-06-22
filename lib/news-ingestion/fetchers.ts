@@ -1,4 +1,4 @@
-import type { SourceRecord } from "@/lib/types";
+import type { CategorySlug, SourceRecord } from "@/lib/types";
 
 import { fetchLiveNews, hasGNewsKey } from "@/lib/integrations/gnews";
 import { clampImportance, dedupeImportedArticles, parseRssItems, resolveCategorySlug } from "@/lib/news-ingestion/helpers";
@@ -65,19 +65,19 @@ async function fetchApiSource(source: SourceRecord): Promise<ImportedArticleCand
     const articles = await fetchLiveNews(category);
 
     return dedupeImportedArticles(
-      articles.map((article) => ({
-        title: article.title,
-        excerpt: article.excerpt,
-        content: article.content,
-        coverImage: article.coverImage,
-        externalUrl: article.externalUrl ?? article.source.url,
-        externalId: article.externalUrl ?? article.slug,
-        publishedAt: new Date(article.publishedAt),
-        importanceScore: article.importanceScore,
-        categorySlug: article.category.slug,
-        source: toSourceRef(source)
-      }))
-    );
+  articles.map((article) => ({
+    title: article.title,
+    excerpt: article.excerpt,
+    content: article.content,
+    coverImage: article.coverImage,
+    externalUrl: article.externalUrl ?? article.source.url,
+    externalId: article.externalUrl ?? article.slug,
+    publishedAt: new Date(article.publishedAt),
+    importanceScore: article.importanceScore,
+    categorySlug: article.category.slug as CategorySlug,
+    source: toSourceRef(source)
+  }))
+);
   }
 
   throw new Error(`Unsupported API provider for source ${source.slug}`);

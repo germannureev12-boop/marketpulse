@@ -200,14 +200,14 @@ function PriceChart({
 }, [chart.candles, plotBottom, plotLeft, plotTop, plotWidth]);
 
   const stopChartDrag = useCallback(() => {
-    if (!dragStateRef.current) {
-      return;
-    }
+  if (!dragStateRef.current) {
+    return;
+  }
 
-    dragStateRef.current = null;
-    setIsDragging(false);
-    document.body.style.userSelect = "";
-  });
+  dragStateRef.current = null;
+  setIsDragging(false);
+  document.body.style.userSelect = "";
+}, []);
 
   const handleChartWindowMouseMove = useCallback((event: MouseEvent) => {
     const activeDrag = dragStateRef.current;

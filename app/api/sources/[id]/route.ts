@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
@@ -17,7 +16,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const source = await prisma.source.update({
       where: { id: Number(id) },
       data: {
-        ...parsed.data,
         description: parsed.data.description ?? null,
         kind: parsed.data.kind ?? "manual",
         feedUrl: parsed.data.feedUrl || null,

@@ -210,22 +210,29 @@ function PriceChart({
 }, []);
 
   const handleChartWindowMouseMove = useCallback((event: MouseEvent) => {
-    const activeDrag = dragStateRef.current;
-    if (!activeDrag) {
-      return;
-    }
+  const activeDrag = dragStateRef.current;
+  if (!activeDrag) {
+    return;
+  }
 
-    if ((event.buttons & 1) !== 1) {
-      stopChartDrag();
-      return;
-    }
+  if ((event.buttons & 1) !== 1) {
+    stopChartDrag();
+    return;
+  }
 
-    event.preventDefault();
-    const deltaX = event.clientX - activeDrag.startX;
-    setPanOffset(
-      getMarketPanOffsetFromDrag(snapshot.candles.length, zoomLevel, activeDrag.startOffset, deltaX, plotWidth, visibleCandles.length)
-    );
-  });
+  event.preventDefault();
+  const deltaX = event.clientX - activeDrag.startX;
+  setPanOffset(
+    getMarketPanOffsetFromDrag(
+      snapshot.candles.length,
+      zoomLevel,
+      activeDrag.startOffset,
+      deltaX,
+      plotWidth,
+      visibleCandles.length
+    )
+  );
+}, [plotWidth, snapshot.candles.length, stopChartDrag, visibleCandles.length, zoomLevel]);
 
   const handleChartWindowMouseUp = useCallback(() => {
     stopChartDrag();

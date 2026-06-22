@@ -171,19 +171,20 @@ export function mapCoinbasePrices(
   payload: Record<string, { ticker?: CoinbaseTickerEntry; stats?: CoinbaseStatsEntry }>,
   fallbackDate = new Date()
 ): CryptoRecord[] {
-  return coinMeta
-    .map((coin, index) => {
-      const item = payload[coin.symbol];
-      const price = Number(item?.ticker?.price ?? NaN);
-      if (Number.isNaN(price) || price <= 0) {
-        return null;
-      }
+  return coinMeta.flatMap((coin, index) => {
+    const item = payload[coin.symbol];
+    const price = Number(item?.ticker?.price ?? NaN);
 
-      const open = Number(item?.stats?.open ?? NaN);
-      const change24h = !Number.isNaN(open) && open > 0 ? ((price - open) / open) * 100 : 0;
-      const recordedAt = item?.ticker?.time ? new Date(item.ticker.time) : fallbackDate;
+    if (Number.isNaN(price) || price <= 0) {
+      return [];
+    }
 
-      return {
+    const open = Number(item?.stats?.open ?? NaN);
+    const change24h = !Number.isNaN(open) && open > 0 ? ((price - open) / open) * 100 : 0;
+    const recordedAt = item?.ticker?.time ? new Date(item.ticker.time) : fallbackDate;
+
+    return [
+      {
         id: index + 1,
         symbol: coin.symbol,
         name: coin.name,
@@ -191,9 +192,9 @@ export function mapCoinbasePrices(
         change24h,
         marketCap: coin.fallbackMarketCap,
         recordedAt
-      } satisfies CryptoRecord;
-    })
-    .filter((item): item is CryptoRecord => Boolean(item));
+      } satisfies CryptoRecord
+    ];
+  });
 }
 
 type BinanceTickerEntry = {

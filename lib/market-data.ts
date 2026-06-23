@@ -1,13 +1,5 @@
+import type { MarketCandle, MarketInterval, MarketOrderLevel, MarketSnapshot, MarketStats, MarketSymbol, MarketTrade } from "@/lib/types";
 import { fallbackCrypto } from "@/lib/fallback-data";
-import type {
-  MarketCandle,
-  MarketInterval,
-  MarketOrderLevel,
-  MarketSnapshot,
-  MarketStats,
-  MarketSymbol,
-  MarketTrade
-} from "@/lib/types";
 
 const marketMeta = {
   btc: { symbol: "btc", pair: "BTCUSDT", coinbasePair: "BTC-USD", assetName: "Bitcoin", displayTicker: "BTC/USDT" },
@@ -81,6 +73,9 @@ type CoinbaseTradePayload = {
   side?: "buy" | "sell";
 };
 
+const MARKET_BOOK_LEVEL_LIMIT = 60;
+const MARKET_BOOK_DISTANCE_RATIO = 0.2;
+
 export function isMarketSymbol(value: string): value is MarketSymbol {
   return value in marketMeta;
 }
@@ -107,19 +102,45 @@ function toNumber(value: string) {
 
 function buildDepthLevels(levels: Array<[string, string] | [string, string, string?]>) {
   let runningTotal = 0;
-
   return levels.map((level) => {
     const [price, quantity] = level;
     const parsedPrice = toNumber(price);
     const parsedQuantity = toNumber(quantity);
     runningTotal += parsedQuantity;
-
     return {
       price: parsedPrice,
       quantity: parsedQuantity,
       total: runningTotal
     } satisfies MarketOrderLevel;
   });
+}
+
+function normalizeDepthLevels(
+  levels: Array<[string, string] | [string, string, string?]>,
+  side: "ask" | "bid",
+  referencePrice: number,
+  limit = MARKET_BOOK_LEVEL_LIMIT
+) {
+  const normalized = levels
+    .map((level) => {
+      const [price, quantity] = level;
+      return {
+        price: toNumber(price),
+        quantity: toNumber(quantity)
+      };
+    })
+    .filter((level) => Number.isFinite(level.price) && Number.isFinite(level.quantity) && level.price > 0 && level.quantity > 0)
+    .sort((left, right) => (side === "ask" ? left.price - right.price : right.price - left.price));
+
+  const banded = normalized.filter((level) =>
+    side === "ask"
+      ? level.price >= referencePrice && level.price <= referencePrice * (1 + MARKET_BOOK_DISTANCE_RATIO)
+      : level.price <= referencePrice && level.price >= referencePrice * (1 - MARKET_BOOK_DISTANCE_RATIO)
+  );
+
+  const levelsToUse = (banded.length >= Math.min(12, limit) ? banded : normalized).slice(0, limit);
+
+  return buildDepthLevels(levelsToUse.map((level) => [String(level.price), String(level.quantity)] as [string, string]));
 }
 
 function buildStats(payload: BinanceTickerPayload): MarketStats {
@@ -186,8 +207,8 @@ function buildCoinbaseTrades(payload: CoinbaseTradePayload[]) {
       quantity: toNumber(trade.size ?? "0"),
       time: trade.time ? new Date(trade.time).toISOString() : new Date().toISOString(),
       side: trade.side === "sell" ? "sell" : "buy"
-    } satisfies MarketTrade))
-    .sort((left, right) => left.time.localeCompare(right.time));
+    }))
+    .sort((left, right) => left.time.localeCompare(right.time)) satisfies MarketTrade[];
 }
 
 function getFallbackBasePrice(symbol: MarketSymbol) {
@@ -199,12 +220,7 @@ function buildFallbackMarketSnapshot(symbol: MarketSymbol, interval: MarketInter
   const meta = getMarketMeta(symbol);
   const basePrice = getFallbackBasePrice(symbol);
   const now = Date.now();
-  const stepMs =
-    interval === "15m"
-      ? 15 * 60 * 1000
-      : interval === "1h"
-        ? 60 * 60 * 1000
-        : 4 * 60 * 60 * 1000;
+  const stepMs = interval === "15m" ? 15 * 60 * 1000 : interval === "1h" ? 60 * 60 * 1000 : 4 * 60 * 60 * 1000;
   const candleCount = 72;
 
   const candles: MarketCandle[] = Array.from({ length: candleCount }, (_, index) => {
@@ -255,10 +271,9 @@ function buildFallbackMarketSnapshot(symbol: MarketSymbol, interval: MarketInter
     };
   });
 
-    const trades: MarketTrade[] = Array.from({ length: 12 }, (_, index) => {
-    const side: "buy" | "sell" = index % 2 === 0 ? "buy" : "sell";
+  const trades: MarketTrade[] = Array.from({ length: 12 }, (_, index) => {
+    const side = index % 2 === 0 ? "buy" : "sell";
     const priceShift = (index - 6) * basePrice * 0.00035;
-
     return {
       price: Number((lastPrice + priceShift).toFixed(2)),
       quantity: Number((0.04 + index * 0.01).toFixed(6)),
@@ -350,8 +365,8 @@ async function fetchCoinbaseMarketSnapshot(symbol: MarketSymbol, interval: Marke
       baseVolume24h: baseVolume,
       quoteVolume24h: baseVolume * lastPrice
     },
-    bids: buildDepthLevels(book.bids),
-    asks: buildDepthLevels(book.asks),
+    bids: normalizeDepthLevels(book.bids, "bid", lastPrice),
+    asks: normalizeDepthLevels(book.asks, "ask", lastPrice),
     trades: buildCoinbaseTrades(trades),
     candles: buildCoinbaseCandles(candles)
   };
@@ -398,8 +413,8 @@ export async function fetchMarketSnapshot(symbol: MarketSymbol, interval: Market
       provider: "binance",
       updatedAt: new Date(ticker.closeTime).toISOString(),
       stats: buildStats(ticker),
-      bids: buildDepthLevels(depth.bids),
-      asks: buildDepthLevels(depth.asks),
+      bids: normalizeDepthLevels(depth.bids, "bid", buildStats(ticker).lastPrice),
+      asks: normalizeDepthLevels(depth.asks, "ask", buildStats(ticker).lastPrice),
       trades: buildRecentTrades(trades).reverse(),
       candles: buildCandles(klines)
     };

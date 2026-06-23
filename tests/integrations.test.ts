@@ -9,7 +9,14 @@ import {
 } from "../lib/integrations/mappers";
 import { getArticleCtaLabel, getArticleHref, isExternalArticle } from "../lib/articles";
 import { getCryptoPatternRows, getCryptoPatternVariant } from "../lib/crypto-patterns";
-import { getMarketHref, getMarketMeta, getMarketInterval, isMarketInterval, isMarketSymbol } from "../lib/market-data";
+import {
+  fetchMarketSnapshot,
+  getMarketHref,
+  getMarketMeta,
+  getMarketInterval,
+  isMarketInterval,
+  isMarketSymbol
+} from "../lib/market-data";
 
 describe("mapCoinGeckoPrices", () => {
   it("maps CoinGecko simple price payload into dashboard records", () => {
@@ -227,5 +234,25 @@ describe("market routes", () => {
     expect(isMarketInterval("5m")).toBe(false);
     expect(getMarketInterval("1h")).toBe("1h");
     expect(getMarketInterval("bad-value")).toBe("15m");
+  });
+
+  it("returns a fallback market snapshot when live providers are unavailable", async () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      throw new Error("offline");
+    };
+
+    try {
+      const snapshot = await fetchMarketSnapshot("btc", "15m");
+
+      expect(snapshot.provider).toBe("fallback");
+      expect(snapshot.symbol).toBe("btc");
+      expect(snapshot.candles.length).toBeGreaterThan(20);
+      expect(snapshot.bids.length).toBeGreaterThan(0);
+      expect(snapshot.asks.length).toBeGreaterThan(0);
+      expect(snapshot.stats.lastPrice).toBeGreaterThan(0);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   });
 });

@@ -255,8 +255,8 @@ function buildFallbackMarketSnapshot(symbol: MarketSymbol, interval: MarketInter
     };
   });
 
-  const trades: MarketTrade[] = Array.from({ length: 12 }, (_, index) => {
-    const side = index % 2 === 0 ? "buy" : "sell";
+    const trades: MarketTrade[] = Array.from({ length: 12 }, (_, index) => {
+    const side: "buy" | "sell" = index % 2 === 0 ? "buy" : "sell";
     const priceShift = (index - 6) * basePrice * 0.00035;
 
     return {

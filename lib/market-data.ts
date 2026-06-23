@@ -186,8 +186,8 @@ function buildCoinbaseTrades(payload: CoinbaseTradePayload[]) {
       quantity: toNumber(trade.size ?? "0"),
       time: trade.time ? new Date(trade.time).toISOString() : new Date().toISOString(),
       side: trade.side === "sell" ? "sell" : "buy"
-    }))
-    .sort((left, right) => left.time.localeCompare(right.time)) satisfies MarketTrade[];
+    } satisfies MarketTrade))
+    .sort((left, right) => left.time.localeCompare(right.time));
 }
 
 function getFallbackBasePrice(symbol: MarketSymbol) {

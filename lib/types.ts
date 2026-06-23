@@ -105,7 +105,7 @@ export type MarketSnapshot = {
   pair: string;
   assetName: string;
   interval: MarketInterval;
-  provider: "binance";
+  provider: "binance" | "coinbase" | "fallback";
   updatedAt: string;
   stats: MarketStats;
   bids: MarketOrderLevel[];

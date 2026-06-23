@@ -200,15 +200,19 @@ function buildCoinbaseCandles(payload: CoinbaseCandlePayload[]) {
     })) satisfies MarketCandle[];
 }
 
-function buildCoinbaseTrades(payload: CoinbaseTradePayload[]) {
+function buildCoinbaseTrades(payload: CoinbaseTradePayload[]): MarketTrade[] {
   return payload
-    .map((trade) => ({
-      price: toNumber(trade.price ?? "0"),
-      quantity: toNumber(trade.size ?? "0"),
-      time: trade.time ? new Date(trade.time).toISOString() : new Date().toISOString(),
-      side: trade.side === "sell" ? "sell" : "buy"
-    }))
-    .sort((left, right) => left.time.localeCompare(right.time)) satisfies MarketTrade[];
+    .map((trade) => {
+      const side: "buy" | "sell" = trade.side === "sell" ? "sell" : "buy";
+
+      return {
+        price: toNumber(trade.price ?? "0"),
+        quantity: toNumber(trade.size ?? "0"),
+        time: trade.time ? new Date(trade.time).toISOString() : new Date().toISOString(),
+        side
+      };
+    })
+    .sort((left, right) => left.time.localeCompare(right.time));
 }
 
 function getFallbackBasePrice(symbol: MarketSymbol) {

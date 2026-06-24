@@ -30,7 +30,7 @@ export default async function HomePage() {
       <section className="space-y-4">
         <p className="eyebrow">Global dashboard</p>
         <div className="min-w-0">
-          <AnimatedHeroTitle text="Financial and crypto news built for traders, operators, and macro obsessives.TEST" />
+          <AnimatedHeroTitle text="Financial and crypto news built for traders, operators, and macro obsessives." />
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
             Scan the tape fast, catch the narrative early, and drill into the stories moving markets.
           </p>
